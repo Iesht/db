@@ -84,6 +84,8 @@ namespace Game.Domain
 
         public GameTurnEntity FinishTurn()
         {
+            var playerDecisions = new Dictionary<Guid, PlayerDecision>();
+            var isDraw = true;
             var winnerId = Guid.Empty;
             for (int i = 0; i < 2; i++)
             {
@@ -91,14 +93,25 @@ namespace Game.Domain
                 var opponent = Players[1 - i];
                 if (!player.Decision.HasValue || !opponent.Decision.HasValue)
                     throw new InvalidOperationException();
+                
+                playerDecisions[player.UserId] = player.Decision.Value;
+                
                 if (player.Decision.Value.Beats(opponent.Decision.Value))
                 {
                     player.Score++;
                     winnerId = player.UserId;
+                    isDraw = false;
                 }
             }
             //TODO Заполнить все внутри GameTurnEntity, в том числе winnerId
-            var result = new GameTurnEntity();
+            var result = new GameTurnEntity
+            {
+                GameId = Id,
+                TurnIndex = CurrentTurnIndex,
+                Decisions = playerDecisions,
+                WinnerId = winnerId == Guid.Empty ? null : winnerId,
+                IsDraw = isDraw,
+            };
             // Это должно быть после создания GameTurnEntity
             foreach (var player in Players)
                 player.Decision = null;
