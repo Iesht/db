@@ -35,7 +35,6 @@ namespace Game.Domain
         {
             return gameCollection
                 .Find(g => g.Status == GameStatus.WaitingToStart)
-                .SortBy(g => g.Id)
                 .Limit(limit)
                 .ToList();
         }

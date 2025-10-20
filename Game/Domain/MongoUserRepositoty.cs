@@ -27,14 +27,23 @@ namespace Game.Domain
             return userCollection.Find(x => x.Id == id).FirstOrDefault();
         }
 
+        
         public UserEntity GetOrCreateByLogin(string login)
         {
-            var user = userCollection
-                .Find(x => x.Login == login)
-                .FirstOrDefault();
-            return user ?? Insert(new UserEntity(Guid.NewGuid(), login, null,
-                null, 0, null));
+            var filter = Builders<UserEntity>.Filter.Eq(x => x.Login, login);
+            var update = Builders<UserEntity>.Update
+                .SetOnInsert(x => x.Id, Guid.NewGuid())
+                .SetOnInsert(x => x.Login, login);
+    
+            var options = new FindOneAndUpdateOptions<UserEntity>
+            {
+                IsUpsert = true,
+                ReturnDocument = ReturnDocument.After
+            };
+
+            return userCollection.FindOneAndUpdate(filter, update, options);
         }
+
 
         public void Update(UserEntity user)
         {

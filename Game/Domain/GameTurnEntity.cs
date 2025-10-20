@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Game.Domain
@@ -30,12 +31,34 @@ namespace Game.Domain
         public int TurnIndex {get; set;}
 
         [BsonElement]
-        public Dictionary<Guid, PlayerDecision> Decisions { get; set; } = new();
+        public List<PlayerTurnInfo> PlayerTurns { get; set; } = new();
         
         [BsonElement]
         public Guid? WinnerId {get; set;}
         
         [BsonElement]
         public bool IsDraw { get; set; }
+        
+        public PlayerDecision? GetDecision(Guid playerId)
+        {
+            return PlayerTurns.FirstOrDefault(p => p.PlayerId == playerId)?.Decision;
+        }
+
+        public string GetPlayerName(Guid playerId)
+        {
+            return PlayerTurns.FirstOrDefault(p => p.PlayerId == playerId)?.PlayerName;
+        }
+    }
+    
+    public class PlayerTurnInfo
+    {
+        [BsonElement]
+        public Guid PlayerId { get; set; }
+
+        [BsonElement]
+        public string PlayerName { get; set; }
+
+        [BsonElement]
+        public PlayerDecision Decision { get; set; }
     }
 }

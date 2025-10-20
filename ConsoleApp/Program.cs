@@ -196,18 +196,18 @@ namespace ConsoleApp
 
             foreach (var turn in lastTurns.OrderBy(t => t.TurnIndex))
             {
-                var humanDecision = turn.Decisions[human.Id];
-                var aiDecision = turn.Decisions[ai.Id];
+                var humanTurn = turn.PlayerTurns.First(t => t.PlayerId == human.Id);
+                var aiTurn = turn.PlayerTurns.First(t => t.PlayerId == ai.Id);
 
                 var result = "";
                 if (turn.IsDraw)
                     result = "Draw";
                 else if (turn.WinnerId == human.Id)
-                    result = "Human won";
+                    result = $"{humanTurn.PlayerName} won";
                 else if (turn.WinnerId == ai.Id)
-                    result = "AI won";
+                    result = $"{aiTurn.PlayerName} won";
                 
-                Console.WriteLine($"Turn {turn.TurnIndex + 1}: Human={humanDecision}, AI={aiDecision} - {result}");
+                Console.WriteLine($"[{turn.Timestamp}] Turn {turn.TurnIndex + 1}: {humanTurn.PlayerName}={humanTurn.Decision}, {aiTurn.PlayerName}={aiTurn.Decision} -> \b{result}");
             }
             Console.WriteLine($"Score: {players[0].Name} {players[0].Score} : {players[1].Score} {players[1].Name}");
         }
