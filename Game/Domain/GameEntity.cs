@@ -84,7 +84,7 @@ namespace Game.Domain
 
         public GameTurnEntity FinishTurn()
         {
-            var playerDecisions = new Dictionary<Guid, PlayerDecision>();
+            var playerTurns = new List<PlayerTurnInfo>();
             var isDraw = true;
             var winnerId = Guid.Empty;
             for (int i = 0; i < 2; i++)
@@ -93,8 +93,13 @@ namespace Game.Domain
                 var opponent = Players[1 - i];
                 if (!player.Decision.HasValue || !opponent.Decision.HasValue)
                     throw new InvalidOperationException();
-                
-                playerDecisions[player.UserId] = player.Decision.Value;
+
+                playerTurns.Add(new PlayerTurnInfo
+                {
+                    PlayerId = player.UserId,
+                    Decision = player.Decision.Value,
+                    PlayerName = player.Name
+                });
                 
                 if (player.Decision.Value.Beats(opponent.Decision.Value))
                 {
@@ -108,7 +113,7 @@ namespace Game.Domain
             {
                 GameId = Id,
                 TurnIndex = CurrentTurnIndex,
-                Decisions = playerDecisions,
+                PlayerTurns = playerTurns,
                 WinnerId = winnerId == Guid.Empty ? null : winnerId,
                 IsDraw = isDraw,
             };
