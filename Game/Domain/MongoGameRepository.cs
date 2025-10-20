@@ -4,28 +4,30 @@ using MongoDB.Driver;
 
 namespace Game.Domain
 {
-    // TODO Сделать по аналогии с MongoUserRepository
     public class MongoGameRepository : IGameRepository
     {
+        private readonly IMongoCollection<GameEntity> gameCollection;
         public const string CollectionName = "games";
 
         public MongoGameRepository(IMongoDatabase db)
         {
+            gameCollection = db.GetCollection<GameEntity>(CollectionName);
         }
 
         public GameEntity Insert(GameEntity game)
         {
-            throw new NotImplementedException();
+            gameCollection.InsertOne(game);
+            return game;
         }
 
         public GameEntity FindById(Guid gameId)
         {
-            throw new NotImplementedException();
+            return gameCollection.Find(g => g.Id == gameId).FirstOrDefault();
         }
 
         public void Update(GameEntity game)
         {
-            throw new NotImplementedException();
+            gameCollection.ReplaceOne(g => g.Id == game.Id, game);
         }
 
         // Возвращает не более чем limit игр со статусом GameStatus.WaitingToStart
