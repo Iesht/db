@@ -11,6 +11,9 @@ namespace Game.Domain
         public MongoUserRepository(IMongoDatabase database)
         {
             userCollection = database.GetCollection<UserEntity>(CollectionName);
+            userCollection.Indexes.CreateOne(new CreateIndexModel<UserEntity>(
+                Builders<UserEntity>.IndexKeys.Ascending(u => u.Login),
+                new CreateIndexOptions { Unique = true }));
         }
 
         public UserEntity Insert(UserEntity user)
@@ -47,8 +50,13 @@ namespace Game.Domain
         // страницы нумеруются с единицы
         public PageList<UserEntity> GetPage(int pageNumber, int pageSize)
         {
-            //TODO: Тебе понадобятся SortBy, Skip и Limit
-            throw new NotImplementedException();
+            var page = userCollection
+                .Find(x => true)
+                .SortBy(x => x.Login)
+                .Skip(pageSize * (pageNumber - 1))
+                .Limit(pageSize)
+                .ToList();
+            return new PageList<UserEntity>(page, userCollection.CountDocuments(x => true), pageNumber,  pageSize);
         }
 
         // Не нужно реализовывать этот метод
