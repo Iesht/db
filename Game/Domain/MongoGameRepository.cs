@@ -33,15 +33,18 @@ namespace Game.Domain
         // Возвращает не более чем limit игр со статусом GameStatus.WaitingToStart
         public IList<GameEntity> FindWaitingToStart(int limit)
         {
-            //TODO: Используй Find и Limit
-            throw new NotImplementedException();
+            return gameCollection
+                .Find(g => g.Status == GameStatus.WaitingToStart)
+                .SortBy(g => g.Id)
+                .Limit(limit)
+                .ToList();
         }
 
         // Обновляет игру, если она находится в статусе GameStatus.WaitingToStart
         public bool TryUpdateWaitingToStart(GameEntity game)
         {
-            //TODO: Для проверки успешности используй IsAcknowledged и ModifiedCount из результата
-            throw new NotImplementedException();
+            var replace = gameCollection.ReplaceOne(g => g.Id == game.Id && g.Status == GameStatus.WaitingToStart, game);
+            return replace.IsAcknowledged && replace.ModifiedCount != 0;
         }
     }
 }
